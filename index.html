@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente de Modelagem de API</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #ffffff; --bg-secondary: #f7f7f5; --bg-tertiary: #f1f1ef; --bg-hover: #f0f0f0; --bg-active: #e8e8e6;
+            --text-primary: #37352f; --text-secondary: #6f6e69; --text-tertiary: #9b9a97;
+            --border-light: #e9e9e7; --border-medium: #d3d3d1;
+            --accent-primary: #2383e2; --accent-hover: #1a73d1; --accent-light: #e8f3ff;
+            --success: #0f7b0f; --success-light: #e8f5e8; --error: #e03e3e; --error-light: #ffeaea;
+            --warning: #f59e0b; --warning-light: #fef3c7;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
+        }
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a; --bg-secondary: #0f0f0f; --bg-tertiary: #262626; --bg-hover: #2a2a2a; --bg-active: #333333;
+            --text-primary: #ffffff; --text-secondary: #b3b3b3; --text-tertiary: #737373;
+            --border-light: #333333; --border-medium: #404040;
+            --accent-primary: #3b82f6; --accent-hover: #2563eb; --accent-light: #1e3a8a;
+            --success: #22c55e; --success-light: #166534; --error: #ef4444; --error-light: #991b1b;
+            --warning: #f59e0b; --warning-light: #92400e;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: var(--bg-secondary); color: var(--text-primary); line-height: 1.6; font-size: 14px; -webkit-font-smoothing: antialiased; }
+        .app-container { min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: var(--bg-primary); border-bottom: 1px solid var(--border-light); padding: 16px 24px; position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+        .logo { font-size: 20px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+        .logo-icon { width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent-primary), #6366f1); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; }
+        .subtitle { color: var(--text-secondary); font-size: 13px; margin-left: auto; font-weight: 400; }
+        .theme-toggle { background: var(--bg-tertiary); border: 1px solid var(--border-medium); border-radius: var(--radius-lg); padding: 8px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; }
+        .theme-toggle:hover { background: var(--bg-hover); transform: scale(1.05); }
+        .theme-icon { font-size: 18px; transition: all 0.3s ease; }
+        .main-content { flex: 1; max-width: 1200px; margin: 0 auto; padding: 32px 24px; width: 100%; }
+        .nav-tabs { display: flex; background: var(--bg-primary); border-radius: var(--radius-lg); padding: 4px; margin-bottom: 32px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-light); }
+        .nav-tab { flex: 1; padding: 12px 20px; background: none; border: none; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.2s ease; }
+        .nav-tab:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .nav-tab.active { background: var(--accent-primary); color: white; box-shadow: var(--shadow-sm); }
+        .tab-content { display: none; background: var(--bg-primary); border-radius: var(--radius-xl); padding: 32px; box-shadow: var(--shadow-md); border: 1px solid var(--border-light); }
+        .tab-content.active { display: block; }
+        .tab-header { margin-bottom: 24px; }
+        .tab-title { font-size: 24px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .tab-description { color: var(--text-secondary); font-size: 15px; line-height: 1.5; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary); font-size: 14px; }
+        .form-input, .form-textarea, .form-select { width: 100%; padding: 12px 16px; border: 1px solid var(--border-medium); border-radius: var(--radius-md); font-size: 14px; font-family: inherit; background: var(--bg-primary); color: var(--text-primary); transition: all 0.2s ease; }
+        .form-input:focus, .form-textarea:focus, .form-select:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 0 0 3px var(--accent-light); }
+        .form-textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+        .form-input::placeholder, .form-textarea::placeholder { color: var(--text-tertiary); }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 20px; border: none; border-radius: var(--radius-md); font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; transition: all 0.2s ease; text-decoration: none; }
+        .btn-primary { background: var(--accent-primary); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn-secondary { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-medium); }
+        .btn-secondary:hover { background: var(--bg-hover); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: #0d6b0d; }
+        .btn-danger { background: var(--error); color: white; }
+        .btn-danger:hover { background: #c53030; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .endpoint-builder { background: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 24px; }
+        .endpoint-builder-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .endpoint-builder-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .endpoint-row { display: grid; grid-template-columns: 100px 1fr 1fr auto; gap: 12px; align-items: center; margin-bottom: 12px; padding: 16px; background: var(--bg-primary); border-radius: var(--radius-md); border: 1px solid var(--border-light); }
+        .btn-add { background: var(--success); color: white; padding: 8px 16px; font-size: 13px; }
+        .btn-remove { background: var(--error); color: white; padding: 6px 12px; font-size: 12px; }
+        .result-container { margin-top: 32px; background: var(--bg-secondary); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-light); }
+        .result-header { padding: 20px 24px; border-bottom: 1px solid var(--border-light); }
+        .result-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .result-meta { font-size: 13px; color: var(--text-secondary); }
+        .code-block { background: #1e1e1e; color: #d4d4d4; padding: 24px; font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5; overflow-x: auto; white-space: pre-wrap; word-break: break-word; }
+        [data-theme="dark"] .code-block { background: #0d1117; color: #e6edf3; }
+        .status-message { padding: 16px 20px; border-radius: var(--radius-lg); margin-top: 24px; display: flex; align-items: flex-start; gap: 12px; font-size: 14px; line-height: 1.5; }
+        .status-success { background: var(--success-light); color: var(--success); border: 1px solid #c6f6d5; }
+        .status-error { background: var(--error-light); color: var(--error); border: 1px solid #fed7d7; }
+        .status-warning { background: var(--warning-light); color: var(--warning); border: 1px solid #fef3c7; }
+        .status-icon { font-weight: 600; font-size: 16px; }
+        .loading { display: none; text-align: center; padding: 40px 20px; color: var(--text-secondary); }
+        .spinner { width: 32px; height: 32px; border: 3px solid var(--border-light); border-top: 3px solid var(--accent-primary); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { font-size: 14px; font-weight: 500; }
+        @media (max-width: 768px) {
+            .main-content { padding: 20px 16px; }
+            .tab-content { padding: 24px 20px; }
+            .nav-tabs { flex-direction: column; gap: 4px; }
+            .nav-tab { text-align: center; }
+            .endpoint-row { grid-template-columns: 1fr; gap: 8px; }
+            .endpoint-builder-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .header-content { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .subtitle { margin-left: 0; }
+        }
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-4 { margin-top: 16px; }
+        .mb-4 { margin-bottom: 16px; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
+        .gap-2 { gap: 8px; }
+        .gap-4 { gap: 16px; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">AI</div>
+                    Agente de Modelagem de API
+                </div>
+                <div class="subtitle">Gere especificações OpenAPI automaticamente</div>
+                <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema">
+                    <span class="theme-icon" id="themeIcon">☀️</span>
+                </button>
+            </div>
+        </header>
+        <main class="main-content">
+            <nav class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('analyze')">Analisar Requisitos</button>
+                <button class="nav-tab" onclick="switchTab('generate')">Gerar OpenAPI</button>
+                <button class="nav-tab" onclick="switchTab('validate')">Validar Especificação</button>
+            </nav>
+            <section id="analyze" class="tab-content active">
+                <div class="tab-header">
+                    <h1 class="tab-title">Análise de Requisitos</h1>
+                    <p class="tab-description">Descreva seus requisitos em linguagem natural e nosso agente inteligente sugerirá uma estrutura completa de API com endpoints e configurações.</p>
+                </div>
+                <form id="analyzeForm">
+                    <div class="form-group">
+                        <label class="form-label" for="requirements">Descreva os requisitos da sua API</label>
+                        <textarea id="requirements" class="form-textarea" placeholder="Exemplo: Preciso de uma API para gerenciar usuários de um sistema. Deve permitir criar, listar, atualizar e deletar usuários. Também preciso de autenticação com login e logout para proteger as operações." rows="6"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Analisar Requisitos</button>
+                </form>
+                <div class="loading" id="analyzeLoading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Analisando requisitos...</div>
+                </div>
+                <div id="analyzeResult"></div>
+            </section>
+            <section id="generate" class="tab-content">
+                <div class="tab-header">
+                    <h1 class="tab-title">Geração de OpenAPI</h1>
+                    <p class="tab-description">Configure os detalhes da sua API e gere uma especificação OpenAPI 3.0 completa e padronizada.</p>
+                </div>
+                <form id="generateForm">
+                    <div class="form-group">
+                        <label class="form-label" for="apiName">Nome da API</label>
+                        <input type="text" id="apiName" class="form-input" placeholder="Ex: API de Gerenciamento de Usuários" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="apiDescription">Descrição</label>
+                        <textarea id="apiDescription" class="form-textarea" placeholder="Descrição detalhada da funcionalidade e propósito da API" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="apiVersion">Versão</label>
+                        <input type="text" id="apiVersion" class="form-input" value="1.0.0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="baseUrl">URL Base</label>
+                        <input type="url" id="baseUrl" class="form-input" placeholder="https://api.exemplo.com" required>
+                    </div>
+                    <div class="endpoint-builder">
+                        <div class="endpoint-builder-header">
+                            <h3 class="endpoint-builder-title">Endpoints da API</h3>
+                            <button type="button" class="btn btn-add" onclick="addEndpoint()">+ Adicionar Endpoint</button>
+                        </div>
+                        <div id="endpointsContainer">
+                            <div class="endpoint-row">
+                                <select class="form-select endpoint-method">
+                                    <option value="GET">GET</option>
+                                    <option value="POST">POST</option>
+                                    <option value="PUT">PUT</option>
+                                    <option value="DELETE">DELETE</option>
+                                    <option value="PATCH">PATCH</option>
+                                </select>
+                                <input type="text" class="form-input endpoint-path" placeholder="/users" required>
+                                <input type="text" class="form-input endpoint-summary" placeholder="Listar usuários">
+                                <button type="button" class="btn btn-remove" onclick="removeEndpoint(this)">Remover</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Gerar Especificação OpenAPI</button>
+                </form>
+                <div class="loading" id="generateLoading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Gerando especificação OpenAPI...</div>
+                </div>
+                <div id="generateResult"></div>
+            </section>
+            <section id="validate" class="tab-content">
+                <div class="tab-header">
+                    <h1 class="tab-title">Validação de Especificação</h1>
+                    <p class="tab-description">Cole uma especificação OpenAPI existente para verificar sua validade e conformidade com os padrões.</p>
+                </div>
+                <form id="validateForm">
+                    <div class="form-group">
+                        <label class="form-label" for="specInput">Especificação OpenAPI (JSON)</label>
+                        <textarea id="specInput" class="form-textarea" placeholder='Cole aqui sua especificação OpenAPI em formato JSON...' rows="12"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Validar Especificação</button>
+                </form>
+                <div class="loading" id="validateLoading">
+                    <div class="spinner"></div>
+                    <div class="loading-text">Validando especificação...</div>
+                </div>
+                <div id="validateResult"></div>
+            </section>
+        </main>
+    </div>
+    <script>
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const themeIcon = document.getElementById('themeIcon');
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '🌙';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                themeIcon.textContent = '☀️';
+            }
+        }
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const themeIcon = document.getElementById('themeIcon');
+            if (currentTheme === 'dark') {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'light');
+                themeIcon.textContent = '☀️';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.textContent = '🌙';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+        function addEndpoint() {
+            const container = document.getElementById('endpointsContainer');
+            const newRow = document.createElement('div');
+            newRow.className = 'endpoint-row';
+            newRow.innerHTML = `
+                <select class="form-select endpoint-method">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                    <option value="PATCH">PATCH</option>
+                </select>
+                <input type="text" class="form-input endpoint-path" placeholder="/endpoint" required>
+                <input type="text" class="form-input endpoint-summary" placeholder="Descrição do endpoint">
+                <button type="button" class="btn btn-remove" onclick="removeEndpoint(this)">Remover</button>
+            `;
+            container.appendChild(newRow);
+        }
+        function removeEndpoint(button) {
+            const container = document.getElementById('endpointsContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+        function showLoading(loadingId) { document.getElementById(loadingId).style.display = 'block'; }
+        function hideLoading(loadingId) { document.getElementById(loadingId).style.display = 'none'; }
+        function showResult(resultId, content) { document.getElementById(resultId).innerHTML = content; }
+        function createStatusMessage(type, title, message) {
+            const iconMap = { success: '✅', error: '❌', warning: '⚠️' };
+            return `<div class="status-message status-${type}"><div class="status-icon">${iconMap[type]}</div><div><div style="font-weight: 600; margin-bottom: 4px;">${title}</div><div>${message}</div></div></div>`;
+        }
+        document.getElementById('analyzeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const requirements = document.getElementById('requirements').value;
+            if (!requirements.trim()) {
+                showResult('analyzeResult', createStatusMessage('error', 'Erro', 'Por favor, descreva os requisitos da API.'));
+                return;
+            }
+            showLoading('analyzeLoading');
+            try {
+                const response = await fetch('/api/analyze-requirements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requirements })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    let resultHtml = createStatusMessage('success', 'Análise Concluída', 
+                        `Complexidade: ${data.analysis.complexity} | Autenticação: ${data.analysis.requires_authentication ? 'Necessária' : 'Não necessária'}`
+                    );
+                    resultHtml += `<div class="result-container"><div class="result-header"><div class="result-title">Endpoints Sugeridos</div><div class="result-meta">${data.suggested_endpoints.length} endpoints identificados</div></div><div class="code-block">`;
+                    data.suggested_endpoints.forEach(endpoint => {
+                        resultHtml += `${endpoint.method} ${endpoint.path} - ${endpoint.summary}\n`;
+                    });
+                    resultHtml += `</div></div><button class="btn btn-success mt-4" onclick="useAnalysisForGeneration(${JSON.stringify(data.suggested_endpoints).replace(/"/g, '&quot;')})">Usar para Gerar OpenAPI</button>`;
+                    showResult('analyzeResult', resultHtml);
+                } else {
+                    showResult('analyzeResult', createStatusMessage('error', 'Erro na Análise', data.error));
+                }
+            } catch (error) {
+                showResult('analyzeResult', createStatusMessage('error', 'Erro de Conexão', error.message));
+            } finally {
+                hideLoading('analyzeLoading');
+            }
+        });
+        function useAnalysisForGeneration(endpoints) {
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.nav-tab')[1].classList.add('active');
+            document.getElementById('generate').classList.add('active');
+            const container = document.getElementById('endpointsContainer');
+            container.innerHTML = '';
+            endpoints.forEach(endpoint => {
+                const newRow = document.createElement('div');
+                newRow.className = 'endpoint-row';
+                newRow.innerHTML = `
+                    <select class="form-select endpoint-method">
+                        <option value="GET" ${endpoint.method === 'GET' ? 'selected' : ''}>GET</option>
+                        <option value="POST" ${endpoint.method === 'POST' ? 'selected' : ''}>POST</option>
+                        <option value="PUT" ${endpoint.method === 'PUT' ? 'selected' : ''}>PUT</option>
+                        <option value="DELETE" ${endpoint.method === 'DELETE' ? 'selected' : ''}>DELETE</option>
+                        <option value="PATCH" ${endpoint.method === 'PATCH' ? 'selected' : ''}>PATCH</option>
+                    </select>
+                    <input type="text" class="form-input endpoint-path" value="${endpoint.path}" required>
+                    <input type="text" class="form-input endpoint-summary" value="${endpoint.summary}">
+                    <button type="button" class="btn btn-remove" onclick="removeEndpoint(this)">Remover</button>
+                `;
+                container.appendChild(newRow);
+            });
+        }
+        document.getElementById('generateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const apiName = document.getElementById('apiName').value;
+            const apiDescription = document.getElementById('apiDescription').value;
+            const apiVersion = document.getElementById('apiVersion').value;
+            const baseUrl = document.getElementById('baseUrl').value;
+            const endpoints = [];
+            document.querySelectorAll('.endpoint-row').forEach(row => {
+                const method = row.querySelector('.endpoint-method').value;
+                const path = row.querySelector('.endpoint-path').value;
+                const summary = row.querySelector('.endpoint-summary').value;
+                if (path.trim()) {
+                    endpoints.push({
+                        method,
+                        path: path.trim(),
+                        summary: summary.trim() || `${method} ${path}`,
+                        requires_auth: method !== 'GET'
+                    });
+                }
+            });
+            if (endpoints.length === 0) {
+                showResult('generateResult', createStatusMessage('error', 'Erro', 'Por favor, adicione pelo menos um endpoint.'));
+                return;
+            }
+            showLoading('generateLoading');
+            try {
+                const response = await fetch('/api/generate-openapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        api_name: apiName,
+                        api_description: apiDescription,
+                        api_version: apiVersion,
+                        base_url: baseUrl,
+                        endpoints
+                    })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const resultHtml = `
+                        ${createStatusMessage('success', 'OpenAPI Gerado com Sucesso', 
+                            `Especificação gerada em ${new Date(data.generated_at).toLocaleString('pt-BR')}`
+                        )}
+                        <div class="result-container">
+                            <div class="result-header">
+                                <div class="result-title">Especificação YAML</div>
+                                <div class="result-meta">Formato legível para humanos</div>
+                            </div>
+                            <div class="code-block">${data.yaml_spec}</div>
+                        </div>
+                        <div class="result-container">
+                            <div class="result-header">
+                                <div class="result-title">Especificação JSON</div>
+                                <div class="result-meta">Formato para integração com ferramentas</div>
+                            </div>
+                            <div class="code-block">${JSON.stringify(data.openapi_spec, null, 2)}</div>
+                        </div>
+                    `;
+                    showResult('generateResult', resultHtml);
+                } else {
+                    showResult('generateResult', createStatusMessage('error', 'Erro na Geração', data.error));
+                }
+            } catch (error) {
+                showResult('generateResult', createStatusMessage('error', 'Erro de Conexão', error.message));
+            } finally {
+                hideLoading('generateLoading');
+            }
+        });
+        document.getElementById('validateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const specInput = document.getElementById('specInput').value;
+            if (!specInput.trim()) {
+                showResult('validateResult', createStatusMessage('error', 'Erro', 'Por favor, cole uma especificação OpenAPI.'));
+                return;
+            }
+            let spec;
+            try {
+                spec = JSON.parse(specInput);
+            } catch (error) {
+                showResult('validateResult', createStatusMessage('error', 'Erro de Sintaxe', 'Erro ao analisar JSON. Verifique a sintaxe da especificação.'));
+                return;
+            }
+            showLoading('validateLoading');
+            try {
+                const response = await fetch('/api/validate-openapi', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ spec })
+                });
+                const data = await response.json();
+                let resultHtml = createStatusMessage(
+                    data.valid ? 'success' : 'error',
+                    data.valid ? 'Validação Bem-sucedida' : 'Validação Falhou',
+                    `Validado em ${new Date(data.validated_at).toLocaleString('pt-BR')}`
+                );
+                if (data.errors && data.errors.length > 0) {
+                    resultHtml += `<div class="result-container"><div class="result-header"><div class="result-title">Erros Encontrados</div><div class="result-meta">${data.errors.length} erro(s)</div></div><div style="padding: 20px;"><ul style="margin-left: 20px;">`;
+                    data.errors.forEach(error => {
+                        resultHtml += `<li style="margin-bottom: 8px;">${error}</li>`;
+                    });
+                    resultHtml += '</ul></div></div>';
+                }
+                if (data.warnings && data.warnings.length > 0) {
+                    resultHtml += `<div class="result-container"><div class="result-header"><div class="result-title">Avisos</div><div class="result-meta">${data.warnings.length} aviso(s)</div></div><div style="padding: 20px;"><ul style="margin-left: 20px;">`;
+                    data.warnings.forEach(warning => {
+                        resultHtml += `<li style="margin-bottom: 8px;">${warning}</li>`;
+                    });
+                    resultHtml += '</ul></div></div>';
+                }
+                showResult('validateResult', resultHtml);
+            } catch (error) {
+                showResult('validateResult', createStatusMessage('error', 'Erro de Conexão', error.message));
+            } finally {
+                hideLoading('validateLoading');
+            }
+        });
+    </script>
+</body>
+</html>
+

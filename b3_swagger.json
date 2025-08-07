@@ -1,0 +1,1684 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Bryt 3 API",
+    "description": "To use the Bryt API you will need to contact us to get an 'api-key' and 'api-customer-id' that need to be included in the headers of every Api call.  We can also provide a set of Postman examples upon request",
+    "version": "v1"
+  },
+  "host": "b3api.brytsoftware.com",
+  "schemes": [
+    "https"
+  ],
+  "paths": {
+    "/v1/Contacts/AllContacts": {
+      "get": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Returns an array of all contacts",
+        "operationId": "Get_All_Contacts",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetContactsResponseApiModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Contacts/ContactByBrytId": {
+      "get": {
+        "tags": [
+          "Contacts"
+        ],
+        "summary": "Returns a single contact based on the Bryt primary key",
+        "operationId": "Get_Contact_By_Id",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "description": "",
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetContactApiResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/AddLoan": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Add a single loan to the Bryt system, this is the preferred way to add loans.  The call is synchronous and will return success/error information",
+        "operationId": "Post_Loan",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "A loan object as specified by the AddLoanApiModel schema",
+            "schema": {
+              "$ref": "#/definitions/AddLoanApiModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AddLoansReponseApiModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/AddLoans": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Adds a loan(s) to the Bryt system exluding twice monthly and single period loans.  It takes an array of loans but it is bettter to just send one loan in each array and make separate calls for each loan.",
+        "operationId": "Post_Loans",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "An array of loan objects as specified by the AddLoanApiModel schema",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AddLoanApiModel"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/AddLoansReponseApiModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/GetLoan": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Gets a loan by its loan name in Bryt",
+        "operationId": "Get_Loan_By_Name",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "loanName",
+            "description": "The loan name in the Bryt system",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetLoanApiResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/GetLoanSchedule": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "*Experimental* Api to test returning schedule entries for a loan by its loan name in Bryt",
+        "operationId": "Get_LoanSchedule_By_Name",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "loanName",
+            "description": "The loan name in the Bryt system",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetLoanScheduleApiResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/GetLoans": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Returns basic details of  in service loans, use offset and limit to page requests if you are requesting more that 100 loans.",
+        "operationId": "Get_Loans",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "offset",
+            "description": "Optional parameter indicating the number of loans skipped based on the primary key",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "description": "Maximum number of loans to return, required if 'offset' is used (optional).",
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "query",
+            "name": "includePaidOffLoans",
+            "description": "Optional parameter that defaults to 'false'",
+            "type": "boolean",
+            "default": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetLoansApiResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/GetLoansByContactId": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Returns basic details of  in service loans with respect to the contact id passed in.",
+        "operationId": "Get_Loans_By_Contact_Id",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/GetLoansApiResponseModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/UpdateLoanUdfs": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Updates UDF values for a loan in Bryt using either the loanId or the loanName. The call is synchronous and will return success/error information.\r\nIf there are any mismatches or type errors the entire call will fail and no UDFs will be updated. Error information will be returned in the response.\r\nAll values should be sent as strings and will be converted to the appropriate type based on the UDF definition.",
+        "operationId": "Post_Loan_Udfs",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/UpdateLoanUdfsApiModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UdfsReponseApiModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Loans/AddLoanUdf": {
+      "post": {
+        "tags": [
+          "Loans"
+        ],
+        "summary": "Adds a loan UDF. The new loan UDf will be added to all loans and to any future loans created. The call is synchronous and will return success/error information. Date and multiple choice types do not support a default value.",
+        "operationId": "Post_Loan_Udf",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/AddLoanUdfApiModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UdfsReponseApiModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Transactions/PaymentsForDate": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Returns a list of payments for a given date. This data may change for a given date in the case of Ach payments, the data returned is 'as of now'.",
+        "operationId": "Get_Payments_For_Date",
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "date",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PaymentsByDateResponseApiModel"
+            }
+          }
+        }
+      }
+    },
+    "/v1/Transactions/MakeCurrentScheduledPayment": {
+      "post": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Makes the current scheduled payment for a loan. Loan must be in service and have an open period, the first open period is the payment that will be made. As of the current version this funtion is not compatible with loans that use the option where interest is collected based on the payment date rather than the end of the period. Model sent in body.",
+        "operationId": "Post_Make_Current_Scheduled_Payment",
+        "consumes": [
+          "application/json",
+          "text/json",
+          "application/*+json"
+        ],
+        "produces": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "",
+            "schema": {
+              "$ref": "#/definitions/MakeScheduledPaymentApiModel"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/MakeScheduledPaymentResponseApiModel"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "GetContactsResponseApiModel": {
+      "type": "object",
+      "properties": {
+        "contacts": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContactApiModel"
+          }
+        }
+      }
+    },
+    "ContactApiModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "brytId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "addresses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AddressApiModel"
+          }
+        }
+      }
+    },
+    "AddressApiModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "address1": {
+          "type": "string"
+        },
+        "address2": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "zip": {
+          "type": "string"
+        },
+        "isDefault": {
+          "type": "boolean"
+        }
+      }
+    },
+    "GetContactApiResponseModel": {
+      "type": "object",
+      "properties": {
+        "contact": {
+          "$ref": "#/definitions/ContactApiModel"
+        }
+      }
+    },
+    "AddLoanApiModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "loanAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "interestRate": {
+          "$ref": "#/definitions/InterestRate"
+        },
+        "loanTerm": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "loanOriginationDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "firstPaymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "maturityDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "loanPurpose": {
+          "type": "string"
+        },
+        "loanType": {
+          "type": "string"
+        },
+        "loanStatus": {
+          "type": "string"
+        },
+        "loanSource": {
+          "type": "string"
+        },
+        "loanOfficer": {
+          "type": "string"
+        },
+        "loanProcessor": {
+          "type": "string"
+        },
+        "loanCloser": {
+          "type": "string"
+        },
+        "loanUnderwriter": {
+          "type": "string"
+        },
+        "loanServicer": {
+          "type": "string"
+        },
+        "loanCollector": {
+          "type": "string"
+        },
+        "loanInvestor": {
+          "type": "string"
+        },
+        "loanBroker": {
+          "type": "string"
+        },
+        "loanReferral": {
+          "type": "string"
+        },
+        "loanCategory": {
+          "type": "string"
+        },
+        "loanProgram": {
+          "type": "string"
+        },
+        "loanProduct": {
+          "type": "string"
+        },
+        "loanSubProduct": {
+          "type": "string"
+        },
+        "loanChannel": {
+          "type": "string"
+        },
+        "loanBranch": {
+          "type": "string"
+        },
+        "loanDivision": {
+          "type": "string"
+        },
+        "loanRegion": {
+          "type": "string"
+        },
+        "loanMarket": {
+          "type": "string"
+        },
+        "loanPortfolio": {
+          "type": "string"
+        },
+        "loanCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "borrowers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContactApiModel"
+          }
+        },
+        "additionalBorrowers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalBorrowerApiModel"
+          }
+        },
+        "loanUdfs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanUdf"
+          }
+        },
+        "impoundFees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImpoundFeeApiModel"
+          }
+        },
+        "lenderFees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LenderFeeApiModel"
+          }
+        },
+        "paymentFrequency": {
+          "$ref": "#/definitions/PaymentFrequencyOptions"
+        },
+        "paymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "firstPaymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "balloonAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "balloonDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "prepaidInterest": {
+          "type": "number",
+          "format": "double"
+        },
+        "prepaidInterestDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "escrowBalance": {
+          "type": "number",
+          "format": "double"
+        },
+        "impoundBalance": {
+          "type": "number",
+          "format": "double"
+        },
+        "nextPaymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "nextPaymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastPaymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastPaymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastPaymentType": {
+          "type": "string"
+        },
+        "lastPaymentStatus": {
+          "type": "string"
+        },
+        "lastPaymentMethod": {
+          "type": "string"
+        },
+        "lastPaymentReference": {
+          "type": "string"
+        },
+        "lastPaymentNotes": {
+          "type": "string"
+        },
+        "lastPaymentSource": {
+          "type": "string"
+        },
+        "lastPaymentCollector": {
+          "type": "string"
+        },
+        "lastPaymentChannel": {
+          "type": "string"
+        },
+        "lastPaymentBranch": {
+          "type": "string"
+        },
+        "lastPaymentDivision": {
+          "type": "string"
+        },
+        "lastPaymentRegion": {
+          "type": "string"
+        },
+        "loanMarket": {
+          "type": "string"
+        },
+        "loanPortfolio": {
+          "type": "string"
+        },
+        "loanCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "autoPay": {
+          "type": "boolean"
+        },
+        "autoPayBankName": {
+          "type": "string"
+        },
+        "autoPayBankAccountNumber": {
+          "type": "string"
+        },
+        "autoPayBankRoutingNumber": {
+          "type": "string"
+        },
+        "autoPayBankType": {
+          "type": "string"
+        },
+        "autoPayBankStatus": {
+          "type": "string"
+        },
+        "autoPayBankNotes": {
+          "type": "string"
+        },
+        "autoPayBankCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "achEnabled": {
+          "type": "boolean"
+        },
+        "achBankName": {
+          "type": "string"
+        },
+        "achBankAccountNumber": {
+          "type": "string"
+        },
+        "achBankRoutingNumber": {
+          "type": "string"
+        },
+        "achBankType": {
+          "type": "string"
+        },
+        "achBankStatus": {
+          "type": "string"
+        },
+        "achBankNotes": {
+          "type": "string"
+        },
+        "achBankCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "creditCardEnabled": {
+          "type": "boolean"
+        },
+        "creditCardType": {
+          "type": "string"
+        },
+        "creditCardNumber": {
+          "type": "string"
+        },
+        "creditCardExpirationDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "creditCardCvv": {
+          "type": "string"
+        },
+        "creditCardNotes": {
+          "type": "string"
+        },
+        "creditCardCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "collateralType": {
+          "type": "string"
+        },
+        "collateralValue": {
+          "type": "number",
+          "format": "double"
+        },
+        "collateralDescription": {
+          "type": "string"
+        },
+        "collateralCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "customFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "GetLoanScheduleApiResponseModel": {
+      "type": "object",
+      "properties": {
+        "loanSchedule": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanScheduleFlatEntryServiceModel"
+          }
+        },
+        "loanScheduleImpoundFees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanScheduleImpoundFeeDueServiceModel"
+          }
+        },
+        "loanScheduleLenderFeesDue": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanScheduleLenderFeeDueEntryServiceModel"
+          }
+        },
+        "loanScheduleLenderFeesPaid": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanScheduleLenderFeePaidEntryServiceModel"
+          }
+        }
+      }
+    },
+    "LoanScheduleFlatEntryServiceModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "paymentNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "beginningBalance": {
+          "type": "number",
+          "format": "double"
+        },
+        "scheduledPayment": {
+          "type": "number",
+          "format": "double"
+        },
+        "principal": {
+          "type": "number",
+          "format": "double"
+        },
+        "interest": {
+          "type": "number",
+          "format": "double"
+        },
+        "endingBalance": {
+          "type": "number",
+          "format": "double"
+        },
+        "cumulativeInterest": {
+          "type": "number",
+          "format": "double"
+        },
+        "cumulativePrincipal": {
+          "type": "number",
+          "format": "double"
+        },
+        "flatScheduleEntryType": {
+          "$ref": "#/definitions/FlatScheduleEntryTypes"
+        }
+      }
+    },
+    "FlatScheduleEntryTypes": {
+      "type": "string",
+      "enum": [
+        "Scheduled",
+        "ExtraPayment",
+        "Fee",
+        "Escrow",
+        "Impound",
+        "Other"
+      ]
+    },
+    "LoanScheduleImpoundFeeDueServiceModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "paymentNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "feeId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "LoanScheduleLenderFeeDueEntryServiceModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "paymentNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "feeId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "LoanScheduleLenderFeePaidEntryServiceModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "paymentNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dueDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "feeId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "amount": {
+          "type": "number",
+          "format": "double"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "GetLoansApiResponseModel": {
+      "type": "object",
+      "properties": {
+        "loans": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetLoansLoanApiResponseModel"
+          }
+        }
+      }
+    },
+    "GetLoansLoanApiResponseModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "loanAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "interestRate": {
+          "$ref": "#/definitions/InterestRate"
+        },
+        "loanTerm": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "loanOriginationDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "firstPaymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "maturityDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "loanPurpose": {
+          "type": "string"
+        },
+        "loanType": {
+          "type": "string"
+        },
+        "loanStatus": {
+          "type": "string"
+        },
+        "loanSource": {
+          "type": "string"
+        },
+        "loanOfficer": {
+          "type": "string"
+        },
+        "loanProcessor": {
+          "type": "string"
+        },
+        "loanCloser": {
+          "type": "string"
+        },
+        "loanUnderwriter": {
+          "type": "string"
+        },
+        "loanServicer": {
+          "type": "string"
+        },
+        "loanCollector": {
+          "type": "string"
+        },
+        "loanInvestor": {
+          "type": "string"
+        },
+        "loanBroker": {
+          "type": "string"
+        },
+        "loanReferral": {
+          "type": "string"
+        },
+        "loanCategory": {
+          "type": "string"
+        },
+        "loanProgram": {
+          "type": "string"
+        },
+        "loanProduct": {
+          "type": "string"
+        },
+        "loanSubProduct": {
+          "type": "string"
+        },
+        "loanChannel": {
+          "type": "string"
+        },
+        "loanBranch": {
+          "type": "string"
+        },
+        "loanDivision": {
+          "type": "string"
+        },
+        "loanRegion": {
+          "type": "string"
+        },
+        "loanMarket": {
+          "type": "string"
+        },
+        "loanPortfolio": {
+          "type": "string"
+        },
+        "loanCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "borrowers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContactApiModel"
+          }
+        },
+        "additionalBorrowers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AdditionalBorrowerApiModel"
+          }
+        },
+        "loanUdfs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanUdf"
+          }
+        },
+        "impoundFees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ImpoundFeeApiModel"
+          }
+        },
+        "lenderFees": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LenderFeeApiModel"
+          }
+        },
+        "paymentFrequency": {
+          "$ref": "#/definitions/PaymentFrequencyOptions"
+        },
+        "paymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "firstPaymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "balloonAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "balloonDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "prepaidInterest": {
+          "type": "number",
+          "format": "double"
+        },
+        "prepaidInterestDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "escrowBalance": {
+          "type": "number",
+          "format": "double"
+        },
+        "impoundBalance": {
+          "type": "number",
+          "format": "double"
+        },
+        "nextPaymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "nextPaymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastPaymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastPaymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastPaymentType": {
+          "type": "string"
+        },
+        "lastPaymentStatus": {
+          "type": "string"
+        },
+        "lastPaymentMethod": {
+          "type": "string"
+        },
+        "lastPaymentReference": {
+          "type": "string"
+        },
+        "lastPaymentNotes": {
+          "type": "string"
+        },
+        "lastPaymentSource": {
+          "type": "string"
+        },
+        "lastPaymentCollector": {
+          "type": "string"
+        },
+        "lastPaymentChannel": {
+          "type": "string"
+        },
+        "lastPaymentBranch": {
+          "type": "string"
+        },
+        "lastPaymentDivision": {
+          "type": "string"
+        },
+        "lastPaymentRegion": {
+          "type": "string"
+        },
+        "loanMarket": {
+          "type": "string"
+        },
+        "loanPortfolio": {
+          "type": "string"
+        },
+        "loanCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "autoPay": {
+          "type": "boolean"
+        },
+        "autoPayBankName": {
+          "type": "string"
+        },
+        "autoPayBankAccountNumber": {
+          "type": "string"
+        },
+        "autoPayBankRoutingNumber": {
+          "type": "string"
+        },
+        "autoPayBankType": {
+          "type": "string"
+        },
+        "autoPayBankStatus": {
+          "type": "string"
+        },
+        "autoPayBankNotes": {
+          "type": "string"
+        },
+        "autoPayBankCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "achEnabled": {
+          "type": "boolean"
+        },
+        "achBankName": {
+          "type": "string"
+        },
+        "achBankAccountNumber": {
+          "type": "string"
+        },
+        "achBankRoutingNumber": {
+          "type": "string"
+        },
+        "achBankType": {
+          "type": "string"
+        },
+        "achBankStatus": {
+          "type": "string"
+        },
+        "achBankNotes": {
+          "type": "string"
+        },
+        "achBankCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "creditCardEnabled": {
+          "type": "boolean"
+        },
+        "creditCardType": {
+          "type": "string"
+        },
+        "creditCardNumber": {
+          "type": "string"
+        },
+        "creditCardExpirationDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "creditCardCvv": {
+          "type": "string"
+        },
+        "creditCardNotes": {
+          "type": "string"
+        },
+        "creditCardCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "collateralType": {
+          "type": "string"
+        },
+        "collateralValue": {
+          "type": "number",
+          "format": "double"
+        },
+        "collateralDescription": {
+          "type": "string"
+        },
+        "collateralCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "customFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PaymentsByDateResponseApiModel": {
+      "type": "object",
+      "properties": {
+        "payments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PaymentApiModel"
+          }
+        }
+      }
+    },
+    "PaymentApiModel": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "loanName": {
+          "type": "string"
+        },
+        "paymentNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "paymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "paymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "principalAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "interestAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "escrowAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "impoundAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "lateFeeAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "nsfFeeAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "otherFeeAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "totalFeeAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "paymentType": {
+          "type": "string"
+        },
+        "paymentMethod": {
+          "type": "string"
+        },
+        "paymentStatus": {
+          "type": "string"
+        },
+        "paymentReference": {
+          "type": "string"
+        },
+        "paymentNotes": {
+          "type": "string"
+        },
+        "paymentSource": {
+          "type": "string"
+        },
+        "paymentCollector": {
+          "type": "string"
+        },
+        "paymentChannel": {
+          "type": "string"
+        },
+        "paymentBranch": {
+          "type": "string"
+        },
+        "paymentDivision": {
+          "type": "string"
+        },
+        "paymentRegion": {
+          "type": "string"
+        },
+        "paymentMarket": {
+          "type": "string"
+        },
+        "paymentPortfolio": {
+          "type": "string"
+        },
+        "paymentCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "MakeScheduledPaymentApiModel": {
+      "type": "object",
+      "properties": {
+        "loanName": {
+          "type": "string"
+        },
+        "paymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "paymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "paymentMethod": {
+          "type": "string"
+        },
+        "paymentReference": {
+          "type": "string"
+        },
+        "paymentNotes": {
+          "type": "string"
+        },
+        "paymentSource": {
+          "type": "string"
+        },
+        "paymentCollector": {
+          "type": "string"
+        },
+        "paymentChannel": {
+          "type": "string"
+        },
+        "paymentBranch": {
+          "type": "string"
+        },
+        "paymentDivision": {
+          "type": "string"
+        },
+        "paymentRegion": {
+          "type": "string"
+        },
+        "paymentMarket": {
+          "type": "string"
+        },
+        "paymentPortfolio": {
+          "type": "string"
+        },
+        "paymentCustomFields": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "fundsSource": {
+          "$ref": "#/definitions/FundsSource"
+        },
+        "collectProrateWhen": {
+          "$ref": "#/definitions/CollectProrateWhenOptions"
+        },
+        "payPeriodState": {
+          "$ref": "#/definitions/PayPeriodStates"
+        },
+        "dueLenderFeeAssignment": {
+          "$ref": "#/definitions/DueLenderFeeAssignment"
+        },
+        "outstandingLenderFeeAssignment": {
+          "$ref": "#/definitions/OutstandingLenderFeeAssignment"
+        },
+        "lateFeeCollectionType": {
+          "$ref": "#/definitions/LateFeeCollectionTypes"
+        }
+      }
+    },
+    "FundsSource": {
+      "type": "string",
+      "enum": [
+        "Cash",
+        "Check",
+        "CreditCard",
+        "Ach",
+        "Wire",
+        "Other"
+      ]
+    },
+    "CollectProrateWhenOptions": {
+      "type": "string",
+      "enum": [
+        "Never",
+        "FirstPayment",
+        "EveryPayment"
+      ]
+    },
+    "PayPeriodStates": {
+      "type": "string",
+      "enum": [
+        "Current",
+        "Next",
+        "All"
+      ]
+    },
+    "DueLenderFeeAssignment": {
+      "type": "string",
+      "enum": [
+        "None",
+        "First",
+        "Last",
+        "All"
+      ]
+    },
+    "OutstandingLenderFeeAssignment": {
+      "type": "string",
+      "enum": [
+        "None",
+        "First",
+        "Last",
+        "All"
+      ]
+    },
+    "LateFeeCollectionTypes": {
+      "type": "string",
+      "enum": [
+        "None",
+        "First",
+        "Last",
+        "All"
+      ]
+    },
+    "MakeScheduledPaymentResponseApiModel": {
+      "type": "object",
+      "properties": {
+        "paymentId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "loanName": {
+          "type": "string"
+        },
+        "paymentAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "paymentDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "paymentStatus": {
+          "type": "string"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "UpdateLoanUdfsApiModel": {
+      "type": "object",
+      "properties": {
+        "loanId": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "loanName": {
+          "type": "string"
+        },
+        "loanUdfs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LoanUdf"
+          }
+        }
+      }
+    },
+    "UdfsReponseApiModel": {
+      "type": "object",
+      "properties": {
+        "udfsUpdated": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "AddLoanUdfApiModel": {
+      "type": "object",
+      "properties": {
+        "udfName": {
+          "type": "string"
+        },
+        "udfType": {
+          "type": "string"
+        },
+        "udfDefaultValue": {
+          "type": "string"
+        },
+        "udfDescription": {
+          "type": "string"
+        },
+        "udfRequired": {
+          "type": "boolean"
+        },
+        "udfReadOnly": {
+          "type": "boolean"
+        },
+        "udfVisible": {
+          "type": "boolean"
+        },
+        "udfOrder": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "udfOptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
+
